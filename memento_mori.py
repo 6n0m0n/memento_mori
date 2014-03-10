@@ -96,7 +96,7 @@ class Memento_Mori(Frame):
 
     def fulldrawmap(self):
 
-        symb_to_folder = {"B":"grey_wall_0"}
+        symb_to_folder = {"B":"grey_wall_0", "X":"default_wall"}
 
         off_width = 114/2
         off_height = 80/2
