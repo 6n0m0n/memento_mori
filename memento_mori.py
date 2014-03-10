@@ -96,6 +96,8 @@ class Memento_Mori(Frame):
 
     def fulldrawmap(self):
 
+        symb_to_folder = {"B":"grey_wall_0"}
+
         off_width = 114/2
         off_height = 80/2
 
@@ -157,8 +159,7 @@ class Memento_Mori(Frame):
                     else:
                         filename = "pillar.png"
 
-                    if cur_ssquare.symb == "B":
-                        folder = "grey_wall_0"
+                    folder = symb_to_folder[cur_ssquare.symb]
 
                     imgpath = os.path.join(folder, filename)
                     image = PIL.Image.open(imgpath)
