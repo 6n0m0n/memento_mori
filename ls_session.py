@@ -70,7 +70,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
             for j in range(len(self.movetry_arr[i])):
                 for k in range(len(self.movetry_arr[i][j])):
 
-                    if staying_arr[i][j][k] != None: #i.e. someone is staying put here; important that this goes first!
+                    if (staying_arr[i][j][k] != None) or self.map_arr[i][j][k].pathblocker: #i.e. someone is staying put here OR if the square is a pathblocker
 
                         for w in self.movetry_arr[i][j][k]: #w is not an index here
                             self.success_dict[w] = "failure" #can't move where someone is standing still
