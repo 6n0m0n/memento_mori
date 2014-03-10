@@ -158,7 +158,7 @@ class Memento_Mori(Frame):
                         filename = "pillar.png"
 
                     if cur_ssquare.symb == "B":
-                        folder = "default_wall"
+                        folder = "grey_wall_0"
 
                     imgpath = os.path.join(folder, filename)
                     image = PIL.Image.open(imgpath)
