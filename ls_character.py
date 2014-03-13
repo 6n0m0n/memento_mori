@@ -2,7 +2,9 @@
 
 from ls_behavior import LS_behavior
 from ls_lowbehavior import LS_lowbehavior
+from ls_midbehavior import LS_midbehavior
 from ls_move import LS_move
+import math as Math
 
 class LS_character:
 
@@ -13,6 +15,8 @@ class LS_character:
         self.chindex = chindex
 
         self.roots = []
+
+        self.vision = []#list of tiles within vision
 
         self.type = None
         self.subtype = None
@@ -71,8 +75,33 @@ class LS_character:
         print(session.map_arr[self.position[0]][self.position[1]][self.position[2]])
 
         session.map_arr[self.position[0]][self.position[1]][self.position[2]].contained_ch = self #sloppy in general; only do this when initializing from file
+
+    def update_vision(self): #THIS HAS NOT BEEN DEBUGGED
+        #update what tiles are in vision first, then check them for characters
+        dir_angle_dict = {"N": (3/2)*Math.pi, "E": 0, "S": (1/2)*Math.pi, "W":Math.pi} #angles measured clockwise from the x-axis (the coordinate system is left-handed here so yeah...)
+
+        increment = (1/16)*Math.pi #make smaller for more precision
+        length_increment = 0.3
+        distance = 5 #ray length
+        cone = (7/8)*Math.pi #total angle of cone of view
+
+        facing = dir_angle_dict[self.orientation]
+        start_angle = facing - cone/2
+
+        x_origin = self.position[2] + 0.5
+        y_origin = self.position[1] + 0.5
+        z_origin = self.position[0]
+
+        for i in range(int(Math.floor(cone/increment))):
+            angle = facing + i*increment
+
+            for j in range(int(Math.floor(distance/length_increment))):
+                cur_x = x_origin + j * length_increment * Math.cos(angle)
+                cur_y = y_origin + j * length_increment * Math.sin(angle)
         
     def update(self):
+
+        update_vision()
 
         for i in self.roots:
             i.update()

@@ -113,6 +113,8 @@ class LS_session: #loads up a save's various files, contains game info, talks to
 
             if self.lb_arr[q].subtype == "move":
                 setattr(self.lb_arr[q], "status", self.success_dict[q])
+                
+            self.lb_arr[q].update_character()
 
         print(self.success_dict)
 
