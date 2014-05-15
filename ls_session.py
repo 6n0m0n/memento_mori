@@ -131,7 +131,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
 
     def makemap(self):
 
-        ylength = int(self.fullmapfile[0][0]) #the y length of a z-level
+        ylength = int(self.fullmapfile[0]) #the y length of a z-level
         
         self.fullmapfile.pop(0)
         
