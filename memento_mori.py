@@ -1,6 +1,8 @@
 #by 6n0m0n, SpaceSheep, and malachite_sprite
 from ls_square import LS_square
 from ls_session import LS_session
+from ls_move import LS_move
+from ls_character import LS_character
 from tkinter import *
 from PIL import *
 from PIL import ImageTk
@@ -16,7 +18,7 @@ class Memento_Mori(Frame):
     def __init__(self):
         self.root = tk.Tk()
 
-        self.resolution = [1600, 900]
+        self.resolution = [1280, 720]
         self.z_level = 0
         self.view_rot = 0 #adding 1 to rot represents a clockwise rotation
         tk.Frame.__init__(self, self.root)
@@ -26,7 +28,17 @@ class Memento_Mori(Frame):
         self.make_widgets()
 
     def start(self):
+        self.root.bind_all('<Key>', self.keypress)
         self.root.mainloop()
+
+    def keypress(self, event):
+        print("You pressed "+event.char)
+        if event.char in "wasd":
+            wasd_dict = {"w": [0,-1,0], "a": [0,0,-1], "s": [0,1,0], "d": [0,0,1]}
+            curr_pos = self.session.player.position
+            move_loc = [curr_pos[0], curr_pos[1]+wasd_dict[event.char][1], curr_pos[2]+wasd_dict[event.char][2]]
+            self.session.player.roots.append(LS_move(self.session, self.session.player, move_loc))
+            self.session.update()
 
     def openfolder(self):
         folderloc = tk.filedialog.askdirectory()

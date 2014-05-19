@@ -76,6 +76,9 @@ class LS_character:
 
         session.map_arr[self.position[0]][self.position[1]][self.position[2]].contained_ch = self #sloppy in general; only do this when initializing from file
 
+        if self.subtype == "player":
+            self.session.player = self
+
     def update_vision(self): #THIS HAS NOT BEEN DEBUGGED
         #update what tiles are in vision first, then check them for characters
         dir_angle_dict = {"N": (3/2)*Math.pi, "E": 0, "S": (1/2)*Math.pi, "W":Math.pi} #angles measured clockwise from the x-axis (the coordinate system is left-handed here so yeah...)
@@ -101,7 +104,7 @@ class LS_character:
         
     def update(self):
 
-        update_vision()
+        #update_vision()
 
         for i in self.roots:
             i.update()

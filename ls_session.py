@@ -1,6 +1,7 @@
 #by 6n0m0n, SpaceSheep, and malachite_sprite
 from ls_square import LS_square
 from ls_character import LS_character
+import copy as copy
 import os
 import math
 from random import randrange
@@ -46,53 +47,55 @@ class LS_session: #loads up a save's various files, contains game info, talks to
 
         self.success_dict = {}
         self.already_there = []
-        self.movefrom_arr = self.movetry_arr
-        self.staying_arr = self.movetry_arr
+        movetry_arr = copy.deepcopy(self.movetry_arr)
+        movefrom_arr = copy.deepcopy(self.movetry_arr)
+        staying_arr = copy.deepcopy(self.movetry_arr)
         print(self.movetry_arr)
 
         for w in self.lb_arr:
             self.already_there.append(w.character.position) #lists in the same order where the characters already are
 
-        for i in range(len(self.lb_arr)):
-            
-            if self.lb_arr[i].subtype == "move": #check move commands
-                self.movetry_arr[self.lb_arr[i].move_loc[0]][self.lb_arr[i].move_loc[1]][self.lb_arr[i].move_loc[2]].append(i)
-
         for i in range(len(self.already_there)):
 
             if self.lb_arr[i].subtype == "move":
-                self.movefrom_arr[already_there[i][0]][already_there[i][1]][already_there[i][2]] = i 
+                movefrom_arr[self.already_there[i][0]][self.already_there[i][1]][self.already_there[i][2]] = 900#i
 
             else:
-                self.staying_arr[already_there[i][0]][already_there[i][1]][already_there[i][2]] = i
+                staying_arr[self.already_there[i][0]][self.already_there[i][1]][self.already_there[i][2]] = i
 
-        for i in range(len(self.movetry_arr)):
-            for j in range(len(self.movetry_arr[i])):
-                for k in range(len(self.movetry_arr[i][j])):
+        for i in range(len(self.lb_arr)):
+            
+            if self.lb_arr[i].subtype == "move": #check move commands
+                movetry_arr[self.lb_arr[i].move_loc[0]][self.lb_arr[i].move_loc[1]][self.lb_arr[i].move_loc[2]].append(i)
+                #print(movetry_arr[self.lb_arr[i].move_loc[0]][self.lb_arr[i].move_loc[1]][self.lb_arr[i].move_loc[2]])
+            #print(movetry_arr, id(movetry_arr), id(movefrom_arr))
+
+        for i in range(len(movetry_arr)):
+            for j in range(len(movetry_arr[i])):
+                for k in range(len(movetry_arr[i][j])):
 
                     if (staying_arr[i][j][k] != None) or self.map_arr[i][j][k].pathblocker: #i.e. someone is staying put here OR if the square is a pathblocker
-
-                        for w in self.movetry_arr[i][j][k]: #w is not an index here
+                        for w in movetry_arr[i][j][k]: #w is not an index here
                             self.success_dict[w] = "failure" #can't move where someone is standing still
 
-                    if len(self.movetry_arr[i][j][k]) > 1:
+                    if len(movetry_arr[i][j][k]) > 1:
                         winner_index = randrange(len(self.movetry_arr[i][j][k]))
                         
-                        for p in range(len(self.movetry_arr[i][j][k])):
+                        for p in range(len(movetry_arr[i][j][k])):
 
                             if p == winner_index and self.success_dict[self.movetry_arr[i][j][k][p]] != "failure": #could have failed in the staying check
-                                self.success_dict[self.movetry_arr[i][j][k][p]] = "no_move_conflict" #does not totally determine if you can move; need to check dependencies
+                                self.success_dict[movetry_arr[i][j][k][p]] = "no_move_conflict" #does not totally determine if you can move; need to check dependencies
 
                             else:
-                                self.success_dict[self.movetry_arr[i][j][k][p]] = "failure" #means you will not move
+                                self.success_dict[movetry_arr[i][j][k][p]] = "failure" #means you will not move
 
                     if len(self.movetry_arr[i][j][k]) == 1:
 
-                        self.success_dict[self.movetry_arr[i][j][k][0]] = "no_move_conflict"
+                        self.success_dict[movetry_arr[i][j][k][0]] = "no_move_conflict"
 
                     if movefrom_arr[i][j][k] != None: #i.e. someone is standing where you're trying to go, but they want to move too
 
-                        for w in self.movetry_arr[i][j][k]:
+                        for w in movetry_arr[i][j][k]:
                             self.success_dict[w] = movefrom_arr[i][j][k] #can only ever contain one anyway; index indicates a character as per its command index in the lb_arr
                             
         for e in range(2*len(self.success_dict)): #just making sure thing propogate fully 

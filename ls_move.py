@@ -13,6 +13,6 @@ class LS_move(LS_lowbehavior):
 
     def update_character(self):
 
-        if status == "success":
+        if self.status == "success":
             self.character.set_position(move_loc)
             
