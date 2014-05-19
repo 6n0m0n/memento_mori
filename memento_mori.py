@@ -32,13 +32,14 @@ class Memento_Mori(Frame):
         self.root.mainloop()
 
     def keypress(self, event):
-        print("You pressed "+event.char)
+        #print("You pressed "+event.char)
         if event.char in "wasd":
             wasd_dict = {"w": [0,-1,0], "a": [0,0,-1], "s": [0,1,0], "d": [0,0,1]}
             curr_pos = self.session.player.position
             move_loc = [curr_pos[0], curr_pos[1]+wasd_dict[event.char][1], curr_pos[2]+wasd_dict[event.char][2]]
             self.session.player.roots.append(LS_move(self.session, self.session.player, move_loc))
             self.session.update()
+            self.fulldrawmap()
 
     def openfolder(self):
         folderloc = tk.filedialog.askdirectory()

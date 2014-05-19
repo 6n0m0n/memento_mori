@@ -34,14 +34,13 @@ class LS_session: #loads up a save's various files, contains game info, talks to
     def add_lowbehavior(self, lowbehavior):
         
         self.lb_arr.append(lowbehavior)
-        print("behavior appended")
+        #print("behavior appended")
 
         assert self.lb_arr[-1] is lowbehavior
         
         if len(self.lb_arr) == len(self.ch_arr):
             self.try_lb_updates()
-            print("Trying updates")
-            print(self.lb_arr)
+            #print("Trying updates")
 
     def try_lb_updates(self): #THIS HAS NOT BEEN DEBUGGED YET
 
@@ -50,7 +49,6 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         movetry_arr = copy.deepcopy(self.movetry_arr)
         movefrom_arr = copy.deepcopy(self.movetry_arr)
         staying_arr = copy.deepcopy(self.movetry_arr)
-        print(self.movetry_arr)
 
         for w in self.lb_arr:
             self.already_there.append(w.character.position) #lists in the same order where the characters already are
@@ -58,7 +56,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         for i in range(len(self.already_there)):
 
             if self.lb_arr[i].subtype == "move":
-                movefrom_arr[self.already_there[i][0]][self.already_there[i][1]][self.already_there[i][2]] = 900#i
+                movefrom_arr[self.already_there[i][0]][self.already_there[i][1]][self.already_there[i][2]] = i
 
             else:
                 staying_arr[self.already_there[i][0]][self.already_there[i][1]][self.already_there[i][2]] = i
@@ -74,7 +72,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
             for j in range(len(movetry_arr[i])):
                 for k in range(len(movetry_arr[i][j])):
 
-                    if (staying_arr[i][j][k] != None) or self.map_arr[i][j][k].pathblocker: #i.e. someone is staying put here OR if the square is a pathblocker
+                    if (staying_arr[i][j][k] != []) or self.map_arr[i][j][k].pathblocker: #i.e. someone is staying put here OR if the square is a pathblocker
                         for w in movetry_arr[i][j][k]: #w is not an index here
                             self.success_dict[w] = "failure" #can't move where someone is standing still
 
@@ -88,22 +86,22 @@ class LS_session: #loads up a save's various files, contains game info, talks to
 
                             else:
                                 self.success_dict[movetry_arr[i][j][k][p]] = "failure" #means you will not move
-
-                    if len(self.movetry_arr[i][j][k]) == 1:
+                    
+                    if len(movetry_arr[i][j][k]) == 1:
 
                         self.success_dict[movetry_arr[i][j][k][0]] = "no_move_conflict"
 
-                    if movefrom_arr[i][j][k] != None: #i.e. someone is standing where you're trying to go, but they want to move too
+                    if movefrom_arr[i][j][k] != []: #i.e. someone is standing where you're trying to go, but they want to move too
 
                         for w in movetry_arr[i][j][k]:
                             self.success_dict[w] = movefrom_arr[i][j][k] #can only ever contain one anyway; index indicates a character as per its command index in the lb_arr
+
                             
         for e in range(2*len(self.success_dict)): #just making sure thing propogate fully 
             for g in self.success_dict:
 
                 if type(self.success_dict[g]) is int:
                     self.success_dict[g] = self.success_dict[self.success_dict[g]]
-
         for t in self.success_dict:
 
             if type(self.success_dict[t]) is int:
@@ -118,8 +116,6 @@ class LS_session: #loads up a save's various files, contains game info, talks to
                 setattr(self.lb_arr[q], "status", self.success_dict[q])
                 
             self.lb_arr[q].update_character()
-
-        print(self.success_dict)
 
         self.lb_arr = []
         #NEED TO CLEAN MOVETRY_ARR
