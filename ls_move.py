@@ -14,4 +14,6 @@ class LS_move(LS_lowbehavior):
     def update_character(self):
         if self.status == "success":
             self.character.set_position(self.move_loc)
+
+        self.status = "finished"
             

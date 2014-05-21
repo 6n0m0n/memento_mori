@@ -2,6 +2,7 @@
 from ls_square import LS_square
 from ls_session import LS_session
 from ls_move import LS_move
+from ls_randomwalk import LS_randomwalk
 from ls_character import LS_character
 from tkinter import *
 from PIL import *
@@ -38,6 +39,15 @@ class Memento_Mori(Frame):
             curr_pos = self.session.player.position
             move_loc = [curr_pos[0], curr_pos[1]+wasd_dict[event.char][1], curr_pos[2]+wasd_dict[event.char][2]]
             self.session.player.roots.append(LS_move(self.session, self.session.player, move_loc))
+            self.session.update()
+            self.fulldrawmap()
+
+        if event.char == "u": #force update
+            self.session.update()
+            self.fulldrawmap()
+
+        if event.char == "y": #do random walk yo
+            self.session.player.roots.append(LS_randomwalk(self.session, self.session.player))
             self.session.update()
             self.fulldrawmap()
 

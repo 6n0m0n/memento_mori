@@ -53,6 +53,9 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         for w in self.lb_arr:
             self.already_there.append(w.character.position) #lists in the same order where the characters already are
 
+        for v in range(len(self.lb_arr)):
+            self.success_dict[v] = "unknown"
+
         for i in range(len(self.already_there)):
 
             if self.lb_arr[i].subtype == "move":
@@ -88,8 +91,8 @@ class LS_session: #loads up a save's various files, contains game info, talks to
                                 self.success_dict[movetry_arr[i][j][k][p]] = "failure" #means you will not move
                     
                     if len(movetry_arr[i][j][k]) == 1:
-
-                        self.success_dict[movetry_arr[i][j][k][0]] = "no_move_conflict"
+                        if self.success_dict[movetry_arr[i][j][k][0]] != "failure":
+                            self.success_dict[movetry_arr[i][j][k][0]] = "no_move_conflict"
 
                     if movefrom_arr[i][j][k] != []: #i.e. someone is standing where you're trying to go, but they want to move too
 

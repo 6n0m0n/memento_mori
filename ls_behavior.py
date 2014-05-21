@@ -18,7 +18,7 @@ class LS_behavior:
         
         if self.update_children:
             for i in range(len(self.children)):
-                if self.children[i].status == "finished":
+                if self.children[i].status in ["finished", "failure"]:
                     del self.children[i]
                 else:
                     self.children[i].update()
