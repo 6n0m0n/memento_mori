@@ -4,7 +4,9 @@ from ls_behavior import LS_behavior
 from ls_lowbehavior import LS_lowbehavior
 from ls_midbehavior import LS_midbehavior
 from ls_move import LS_move
+from ls_derp import LS_derp
 import math as Math
+from random import randrange
 
 class LS_character:
 
@@ -79,6 +81,9 @@ class LS_character:
         if self.subtype == "player":
             self.session.player = self
 
+        elif self.subtype == "dummy":
+            self.roots.append(LS_derp(self.session, self))
+
     def update_vision(self): #THIS HAS NOT BEEN DEBUGGED
         #update what tiles are in vision first, then check them for characters
         dir_angle_dict = {"N": (3/2)*Math.pi, "E": 0, "S": (1/2)*Math.pi, "W":Math.pi} #angles measured clockwise from the x-axis (the coordinate system is left-handed here so yeah...)
@@ -108,6 +113,18 @@ class LS_character:
 
         for i in self.roots:
             i.update()
+
+    def erase_ch(self):
+        self.session.map_arr[self.position[0]][self.position[1]][self.position[2]].contained_ch = None
+        self.type = "dead"
+        del self.session.ch_arr[self.chindex]
+
+    def receive_damage(self):
+        self.cur_health = self.cur_health - randrange(13, 49, 1)
+        if self.cur_health <= 0:
+            print ("I am dead")
+            self.erase_ch()
+        print("darn ",  self.cur_health)
 
     def set_position(self, move_loc):
 

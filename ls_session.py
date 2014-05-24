@@ -42,8 +42,9 @@ class LS_session: #loads up a save's various files, contains game info, talks to
             self.try_lb_updates()
             #print("Trying updates")
 
-    def try_lb_updates(self): #THIS HAS NOT BEEN DEBUGGED YET
 
+    def try_lb_updates(self): #THIS HAS NOT BEEN DEBUGGED YET
+        print ("trying updates")
         self.success_dict = {}
         self.already_there = []
         movetry_arr = copy.deepcopy(self.movetry_arr)
@@ -112,16 +113,53 @@ class LS_session: #loads up a save's various files, contains game info, talks to
 
             if self.success_dict[t] == "no_move_conflict":
                 self.success_dict[t] = "success"
+        print ("before q")
 
         for q in range(len(self.lb_arr)):
 
             if self.lb_arr[q].subtype == "move":
                 setattr(self.lb_arr[q], "status", self.success_dict[q])
-                
-            self.lb_arr[q].update_character()
+        print("passed q")    
+        for b in range(len(self.lb_arr)):
+            print("step 1")
+            if self.lb_arr[b].subtype == "attack":
+                print("attack!!!")
+                orient_dict = {"N": [0,-1,0], "S": [0,1,0], "E": [0,0,1], "W":[0,0,-1]}
+                temp = []
+                for r in range (0,3):
+                    orient = orient_dict[self.lb_arr[b].get_character().orientation]
+                    temp.append(self.lb_arr[b].get_character().position[r]+orient[r])
+                print (temp)
+                if self.get_square(temp).contained_ch != None:
+                    self.get_square(temp).contained_ch.receive_damage()
+                    print ("update sent")
 
+                self.lb_arr[b].status = "finished"
+
+        for m in range(len(self.lb_arr)):   
+            self.lb_arr[m].update_character()
+
+            
+            
+##            if self.attacking[a].orientation == "N":
+##                if self.get_square(self.attacking[a].position+[0,-1,0]) != None:
+##                    self.get_square(self.attacking[a].position+[0,-1,0]).receive_damage
+##            elif self.attacking[a].orientation == "S":
+##                if self.get_square(self.attacking[a].position+[0,1,0]) != None:
+##                    self.get_square(self.attacking[a].position+[0,1,0]).receive_damage
+##            elif self.attacking[a].orientation == "E":
+##                if self.get_square(self.attacking[a].position+[0,0,1]) != None:
+##                    self.get_square(self.attacking[a].position+[0,0,1]).receive_damage
+##            elif self.attacking[a].orientation == "W":
+##                if self.get_square(self.attacking[a].position+[0,0,-1]) != None:
+##                    self.get_square(self.attacking[a].position+[0,0,-1]).receive_damage
+
+        attacking = []
         self.lb_arr = []
         #NEED TO CLEAN MOVETRY_ARR
+
+ 
+        
 
     def initialize_chs(self):
 

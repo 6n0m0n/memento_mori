@@ -2,6 +2,7 @@
 from ls_square import LS_square
 from ls_session import LS_session
 from ls_move import LS_move
+from ls_attack import LS_attack
 from ls_randomwalk import LS_randomwalk
 from ls_character import LS_character
 from tkinter import *
@@ -49,6 +50,14 @@ class Memento_Mori(Frame):
         if event.char == "y": #do random walk yo
             self.session.player.roots.append(LS_randomwalk(self.session, self.session.player))
             self.session.update()
+            self.fulldrawmap()
+
+        if event.char == "e":
+            print("e pushed!")
+            self.session.player.roots.append(LS_attack(self.session, self.session.player))
+            print("roots!")
+            self.session.update()
+            print("update!")
             self.fulldrawmap()
 
     def openfolder(self):
