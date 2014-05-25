@@ -110,9 +110,10 @@ class LS_character:
     def update(self):
 
         #update_vision()
-
-        for i in self.roots:
-            i.update()
+        for i in range(len(self.roots)):
+                self.roots[i].update()
+                
+        self.roots = [b for b in self.roots if (not (b.status in ["finished", "failure", "success"]))]
 
     def erase_ch(self):
         self.session.map_arr[self.position[0]][self.position[1]][self.position[2]].contained_ch = None
@@ -127,7 +128,13 @@ class LS_character:
         print("darn ",  self.cur_health)
 
     def set_position(self, move_loc):
+        
+        orient_dict = {"0-10":"N", "010":"S", "001":"E", "00-1":"W"}
+        walk_dir = str(move_loc[0]-self.position[0])+ str(move_loc[1]-self.position[1])+ str(move_loc[2]-self.position[2])
+        self.orientation = orient_dict[walk_dir]
 
+        self.session.animations.append(["move", self.position, move_loc])
+        
         self.session.map_arr[self.position[0]][self.position[1]][self.position[2]].contained_ch = None
         self.session.map_arr[move_loc[0]][move_loc[1]][move_loc[2]].contained_ch = self
         self.position = move_loc

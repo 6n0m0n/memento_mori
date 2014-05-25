@@ -9,11 +9,10 @@ class LS_move(LS_lowbehavior):
         LS_lowbehavior.__init__(self, session, character)
         self.move_loc = move_loc
         self.subtype = "move"
+        self.status = "failure"
         #print("Move initiated")
 
     def update_character(self):
         if self.status == "success":
             self.character.set_position(self.move_loc)
-
-        self.status = "finished"
             

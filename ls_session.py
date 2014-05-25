@@ -14,6 +14,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         self.movetry_arr = []
         self.ch_arr = []
         self.lb_arr = []
+        self.animations = []
         self.folderloc = folderloc
         
         self.fullmapfile = open(os.path.join(folderloc, "region.txt"), "r+").readlines()
@@ -43,13 +44,13 @@ class LS_session: #loads up a save's various files, contains game info, talks to
             #print("Trying updates")
 
 
-    def try_lb_updates(self): #THIS HAS NOT BEEN DEBUGGED YET
-        print ("trying updates")
+    def try_lb_updates(self):
         self.success_dict = {}
         self.already_there = []
         movetry_arr = copy.deepcopy(self.movetry_arr)
         movefrom_arr = copy.deepcopy(self.movetry_arr)
         staying_arr = copy.deepcopy(self.movetry_arr)
+        orient_dict = {"N": [0,-1,0], "S": [0,1,0], "E": [0,0,1], "W":[0,0,-1]}
 
         for w in self.lb_arr:
             self.already_there.append(w.character.position) #lists in the same order where the characters already are
@@ -69,8 +70,6 @@ class LS_session: #loads up a save's various files, contains game info, talks to
             
             if self.lb_arr[i].subtype == "move": #check move commands
                 movetry_arr[self.lb_arr[i].move_loc[0]][self.lb_arr[i].move_loc[1]][self.lb_arr[i].move_loc[2]].append(i)
-                #print(movetry_arr[self.lb_arr[i].move_loc[0]][self.lb_arr[i].move_loc[1]][self.lb_arr[i].move_loc[2]])
-            #print(movetry_arr, id(movetry_arr), id(movefrom_arr))
 
         for i in range(len(movetry_arr)):
             for j in range(len(movetry_arr[i])):
@@ -113,18 +112,15 @@ class LS_session: #loads up a save's various files, contains game info, talks to
 
             if self.success_dict[t] == "no_move_conflict":
                 self.success_dict[t] = "success"
-        print ("before q")
 
         for q in range(len(self.lb_arr)):
 
             if self.lb_arr[q].subtype == "move":
                 setattr(self.lb_arr[q], "status", self.success_dict[q])
-        print("passed q")    
+  
         for b in range(len(self.lb_arr)):
-            print("step 1")
             if self.lb_arr[b].subtype == "attack":
                 print("attack!!!")
-                orient_dict = {"N": [0,-1,0], "S": [0,1,0], "E": [0,0,1], "W":[0,0,-1]}
                 temp = []
                 for r in range (0,3):
                     orient = orient_dict[self.lb_arr[b].get_character().orientation]
@@ -139,27 +135,8 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         for m in range(len(self.lb_arr)):   
             self.lb_arr[m].update_character()
 
-            
-            
-##            if self.attacking[a].orientation == "N":
-##                if self.get_square(self.attacking[a].position+[0,-1,0]) != None:
-##                    self.get_square(self.attacking[a].position+[0,-1,0]).receive_damage
-##            elif self.attacking[a].orientation == "S":
-##                if self.get_square(self.attacking[a].position+[0,1,0]) != None:
-##                    self.get_square(self.attacking[a].position+[0,1,0]).receive_damage
-##            elif self.attacking[a].orientation == "E":
-##                if self.get_square(self.attacking[a].position+[0,0,1]) != None:
-##                    self.get_square(self.attacking[a].position+[0,0,1]).receive_damage
-##            elif self.attacking[a].orientation == "W":
-##                if self.get_square(self.attacking[a].position+[0,0,-1]) != None:
-##                    self.get_square(self.attacking[a].position+[0,0,-1]).receive_damage
-
         attacking = []
         self.lb_arr = []
-        #NEED TO CLEAN MOVETRY_ARR
-
- 
-        
 
     def initialize_chs(self):
 
@@ -179,12 +156,6 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         self.fullmapfile.pop(0)
 
         self.mapfile = self.fullmapfile
-
-        #print(self.mapfile)
-
-        #print(len(self.mapfile[0])-2)
-
-        #z[y[x]], or map_arr[z][y][x]
         
         for j in range(len(self.mapfile)):
             for i in range((len(self.mapfile[0])-1)): #len(mapfile[0])-1
@@ -192,10 +163,6 @@ class LS_session: #loads up a save's various files, contains game info, talks to
                 xcoord = i
                 ycoord = j % ylength
                 zcoord = int(math.floor(j / ylength))
-
-                #print(xcoord)
-                #print(ycoord)
-                #print(zcoord)
 
                 square = LS_square(self.mapfile, ylength, xcoord, ycoord, zcoord, edgesymb)
                     

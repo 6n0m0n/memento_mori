@@ -37,8 +37,13 @@ class Memento_Mori(Frame):
         #print("You pressed "+event.char)
         if event.char in "wasd":
             wasd_dict = {"w": [0,-1,0], "a": [0,0,-1], "s": [0,1,0], "d": [0,0,1]}
+            perm_order = "wasdwas"
+            
             curr_pos = self.session.player.position
-            move_loc = [curr_pos[0], curr_pos[1]+wasd_dict[event.char][1], curr_pos[2]+wasd_dict[event.char][2]]
+            
+            wasd_perm = wasd_dict[perm_order[perm_order.index(event.char)+self.view_rot]]
+            
+            move_loc = [curr_pos[0], curr_pos[1]+wasd_perm[1], curr_pos[2]+wasd_perm[2]]
             self.session.player.roots.append(LS_move(self.session, self.session.player, move_loc))
             self.session.update()
             self.fulldrawmap()
@@ -128,6 +133,9 @@ class Memento_Mori(Frame):
 
     def fulldrawmap(self):
 
+        animdex = 0
+        anim_pause = 20
+
         symb_to_folder = {"B":"grey_wall_0", "X":"default_wall"}
 
         off_width = 114/2
@@ -216,6 +224,101 @@ class Memento_Mori(Frame):
                     
         self.map_image = ImageTk.PhotoImage(self.backdrop)
         title = self.maincan.create_image(0,0,image=self.map_image, anchor="nw")
+
+        self.session.move_anim = [] #clean animations
+
+    def redrawmap(self):
+
+        animdex = 0
+        anim_pause = 20
+
+        symb_to_folder = {"B":"grey_wall_0", "X":"default_wall"}
+
+        off_width = 114/2
+        off_height = 80/2
+
+        e_1 = [off_height, off_width]
+        e_2 = [off_height, -off_width] #basis vectors : [y,x]
+
+        map_arr = self.session.map_arr
+
+        x_dim = len(map_arr[0][0])
+        y_dim = len(map_arr[0])
+        z_dim = len(map_arr)
+
+        l = self.z_level #TODO make it iterate over zs
+
+        self.image_list = []
+
+        direction_permute = ["NS", "EW", "NS", "EW", "NS", "NE", "ES", "SW", "NW", "NE", "ES", "SW", "NES", "ESW", "NSW", "NEW", "NES", "ESW", "NSW", "N", "E", "S", "W", "N", "E", "S"]
+
+        ordering_list = [[range(y_dim), range(x_dim)],[range(y_dim-1,-1,-1), range(x_dim)],[range(y_dim-1,-1,-1), range(x_dim-1,-1,-1)],[range(y_dim), range(x_dim-1,-1,-1)]]
+
+        y_order = ordering_list[self.view_rot][0]
+        x_order = ordering_list[self.view_rot][1]
+
+        for i in y_order:
+            for j in x_order:
+                cur_ssquare = map_arr[l][i][j]
+
+                if self.view_rot == 0:
+                    rel_y = i*off_height + j*off_height
+                    rel_x = j*off_width - i*off_width + off_width*(y_dim + 1)
+
+                if self.view_rot == 1:
+                    rel_y = (y_dim-i)*off_height + j*off_height
+                    rel_x = -j*off_width + (y_dim-i)*off_width + off_width*(x_dim + 1)
+
+                if self.view_rot == 2:
+                    rel_y = (y_dim-i)*off_height + (x_dim-j)*off_height
+                    rel_x = (x_dim-j)*off_width - (y_dim-i)*off_width + off_width*(y_dim + 1)
+
+                if self.view_rot == 3:
+                    rel_y = i*off_height + (x_dim-j)*off_height
+                    rel_x = -(x_dim-j)*off_width + i*off_width + off_width*(x_dim + 1)
+                
+                if cur_ssquare.type == "wall":
+                    trueorientation = cur_ssquare.wallorientation
+
+                    if trueorientation != "":
+
+                        if trueorientation == "NESW":
+                            filename = "NESW.png"
+
+                        else:
+
+                            wall_index = direction_permute.index(trueorientation) + self.view_rot
+                            filename = direction_permute[wall_index] + ".png" #reassigns filename according to rotation
+
+                    else:
+                        filename = "pillar.png"
+
+                    folder = symb_to_folder[cur_ssquare.symb]
+
+                    imgpath = os.path.join(folder, filename)
+                    image = PIL.Image.open(imgpath)
+                    
+                    self.image_list.append(image)
+                    
+                    self.map_image.paste(image, (int(rel_x), int(rel_y)), image)#draw onto file
+
+                if cur_ssquare.contained_ch != None:
+                    cur_ch = cur_ssquare.contained_ch
+                    ch_sprite_folder = cur_ch.sprite_folder
+
+                    direction_index = direction_permute.index(cur_ch.orientation) + self.view_rot
+                    base_filename = direction_permute[direction_index]
+
+                    filename = base_filename + cur_ch.visual_state + cur_ch.anim_state + ".png"
+
+                    imgpath = os.path.join(ch_sprite_folder, filename)
+                    image = PIL.Image.open(imgpath)
+
+                    self.map_image.paste(image, (int(rel_x), int(rel_y)), image)#draw onto file
+                    
+        title = self.maincan.create_image(0,0,image=self.map_image, anchor="nw")
+
+        self.session.move_anim = [] #clean animations
         
 Memento_Mori().start()
 
