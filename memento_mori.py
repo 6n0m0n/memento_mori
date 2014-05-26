@@ -29,6 +29,7 @@ class Memento_Mori(Frame):
         self.root.configure(background = "black")
         self.root.wm_title("Memento Mori")
         self.make_widgets()
+        self.open_images()
 
     def start(self):
         self.root.bind_all('<Key>', self.keypress)
@@ -310,6 +311,10 @@ class Memento_Mori(Frame):
                     
         self.wallspic = backdrop
 
+    def open_images(self):
+
+        self.grey_wall_tops_dict = {"pillar":PIL.Image.open(os.path.join("grey_wall_0_tops", "pillar.png")), "ES":PIL.Image.open(os.path.join("grey_wall_0_tops", "ES.png")),"ESW":PIL.Image.open(os.path.join("grey_wall_0_tops", "ESW.png")),"EW":PIL.Image.open(os.path.join("grey_wall_0_tops", "EW.png")),"NE":PIL.Image.open(os.path.join("grey_wall_0_tops", "NE.png")),"NES":PIL.Image.open(os.path.join("grey_wall_0_tops", "NES.png")),"NESW":PIL.Image.open(os.path.join("grey_wall_0_tops", "NESW.png")),"NEW":PIL.Image.open(os.path.join("grey_wall_0_tops", "NEW.png")),"NS":PIL.Image.open(os.path.join("grey_wall_0_tops", "NS.png")),"NSW":PIL.Image.open(os.path.join("grey_wall_0_tops", "NSW.png")),"NW":PIL.Image.open(os.path.join("grey_wall_0_tops", "NW.png")),"SW":PIL.Image.open(os.path.join("grey_wall_0_tops", "SW.png")),}
+
     def redrawmap(self):
 
         self.backdrop = self.wallspic.copy() #copy.deepcopy doesn't work on images :(
@@ -319,7 +324,7 @@ class Memento_Mori(Frame):
 
         to_update = []
 
-        symb_to_folder = {"B":"grey_wall_0", "X":"default_wall"}
+        symb_to_folder = {"B":"grey_wall_0_tops", "X":"default_wall"}
 
         off_width = 114/2
         off_height = 80/2
@@ -344,12 +349,14 @@ class Memento_Mori(Frame):
         y_order = ordering_list[self.view_rot][0]
         x_order = ordering_list[self.view_rot][1]
 
-        for character in self.session.ch_arr:
-            to_update.append([character.position[0], character.position[1], character.position[2]])
+        for m in range(-1,2):
+            for n in range(-1,2):
+                for character in self.session.ch_arr:
+                    to_update.append([character.position[0], character.position[1]+m, character.position[2]+n])
 
-        for anim in self.session.animations:
-            if anim[0] == "move":
-                to_update.append([anim[2][0], anim[2][1], anim[2][2]])
+                for anim in self.session.animations:
+                    if anim[0] == "move":
+                        to_update.append([anim[2][0], anim[2][1]+m, anim[2][2]+n])
 
         for i in y_order:
             for j in x_order:
@@ -378,20 +385,17 @@ class Memento_Mori(Frame):
                         if trueorientation != "":
 
                             if trueorientation == "NESW":
-                                filename = "NESW.png"
+                                filename = "NESW"
 
                             else:
 
                                 wall_index = direction_permute.index(trueorientation) + self.view_rot
-                                filename = direction_permute[wall_index] + ".png" #reassigns filename according to rotation
+                                filename = direction_permute[wall_index] #reassigns filename according to rotation
 
                         else:
-                            filename = "pillar.png"
+                            filename = "pillar"
 
-                        folder = symb_to_folder[cur_ssquare.symb]
-
-                        imgpath = os.path.join(folder, filename)
-                        image = PIL.Image.open(imgpath)
+                        image = self.grey_wall_tops_dict[filename].copy()
                         
                         self.image_list.append(image)
                         
