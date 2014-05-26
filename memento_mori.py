@@ -70,14 +70,14 @@ class Memento_Mori(Frame):
     def openfolder(self):
         folderloc = tk.filedialog.askdirectory()
         self.session = LS_session(folderloc)
-        self.fulldrawmap()
         self.drawwalls()
+        self.redrawmap()
 
     def opensession(self):
         pickleloc = tk.filedialog.askopenfilename()
         self.session = pickle.load(open(pickleloc, "rb"))
-        self.fulldrawmap()
         self.drawwalls()
+        self.redrawmap()
         print("LS_session opened from pickle")
 
     def savesession(self):
@@ -99,8 +99,8 @@ class Memento_Mori(Frame):
 
     def doubleclick(self, event):
         self.view_rot = (self.view_rot+1)%4
-        self.fulldrawmap()
         self.drawwalls()
+        self.redrawmap()
 
     def make_widgets(self):
         
@@ -135,102 +135,6 @@ class Memento_Mori(Frame):
         self.maincan.bind("<Button-1>", self.click)
         self.maincan.bind("<B1-Motion>", self.clickdrag)
         self.maincan.bind("<Double-Button-1>", self.doubleclick)
-
-    def fulldrawmap(self):
-
-        animdex = 0
-        anim_pause = 20
-
-        symb_to_folder = {"B":"grey_wall_0", "X":"default_wall"}
-
-        off_width = 114/2
-        off_height = 80/2
-
-        e_1 = [off_height, off_width]
-        e_2 = [off_height, -off_width] #basis vectors : [y,x]
-
-        map_arr = self.session.map_arr
-
-        x_dim = len(map_arr[0][0])
-        y_dim = len(map_arr[0])
-        z_dim = len(map_arr)
-
-        self.backdrop = PIL.Image.new("RGB", (int(off_width*(x_dim + y_dim+4)), int(off_height*(x_dim + y_dim+4))), "black")
-
-        l = self.z_level #TODO make it iterate over zs
-
-        self.image_list = []
-
-        direction_permute = ["NS", "EW", "NS", "EW", "NS", "NE", "ES", "SW", "NW", "NE", "ES", "SW", "NES", "ESW", "NSW", "NEW", "NES", "ESW", "NSW", "N", "E", "S", "W", "N", "E", "S"]
-
-        ordering_list = [[range(y_dim), range(x_dim)],[range(y_dim-1,-1,-1), range(x_dim)],[range(y_dim-1,-1,-1), range(x_dim-1,-1,-1)],[range(y_dim), range(x_dim-1,-1,-1)]]
-
-        y_order = ordering_list[self.view_rot][0]
-        x_order = ordering_list[self.view_rot][1]
-
-        for i in y_order:
-            for j in x_order:
-                cur_ssquare = map_arr[l][i][j]
-
-                if self.view_rot == 0:
-                    rel_y = i*off_height + j*off_height
-                    rel_x = j*off_width - i*off_width + off_width*(y_dim + 1)
-
-                if self.view_rot == 1:
-                    rel_y = (y_dim-i)*off_height + j*off_height
-                    rel_x = -j*off_width + (y_dim-i)*off_width + off_width*(x_dim + 1)
-
-                if self.view_rot == 2:
-                    rel_y = (y_dim-i)*off_height + (x_dim-j)*off_height
-                    rel_x = (x_dim-j)*off_width - (y_dim-i)*off_width + off_width*(y_dim + 1)
-
-                if self.view_rot == 3:
-                    rel_y = i*off_height + (x_dim-j)*off_height
-                    rel_x = -(x_dim-j)*off_width + i*off_width + off_width*(x_dim + 1)
-                
-                if cur_ssquare.type == "wall":
-                    trueorientation = cur_ssquare.wallorientation
-
-                    if trueorientation != "":
-
-                        if trueorientation == "NESW":
-                            filename = "NESW.png"
-
-                        else:
-
-                            wall_index = direction_permute.index(trueorientation) + self.view_rot
-                            filename = direction_permute[wall_index] + ".png" #reassigns filename according to rotation
-
-                    else:
-                        filename = "pillar.png"
-
-                    folder = symb_to_folder[cur_ssquare.symb]
-
-                    imgpath = os.path.join(folder, filename)
-                    image = PIL.Image.open(imgpath)
-                    
-                    self.image_list.append(image)
-                    
-                    self.backdrop.paste(image, (int(rel_x), int(rel_y)), image)#draw onto file
-
-                if cur_ssquare.contained_ch != None:
-                    cur_ch = cur_ssquare.contained_ch
-                    ch_sprite_folder = cur_ch.sprite_folder
-
-                    direction_index = direction_permute.index(cur_ch.orientation) + self.view_rot
-                    base_filename = direction_permute[direction_index]
-
-                    filename = base_filename + cur_ch.visual_state + cur_ch.anim_state + ".png"
-
-                    imgpath = os.path.join(ch_sprite_folder, filename)
-                    image = PIL.Image.open(imgpath)
-
-                    self.backdrop.paste(image, (int(rel_x), int(rel_y)), image)#draw onto file
-                    
-        self.map_image = ImageTk.PhotoImage(self.backdrop)
-        title = self.maincan.create_image(0,0,image=self.map_image, anchor="nw")
-
-        self.session.animations = [] #clean animations
         
     def drawwalls(self):
 
@@ -314,7 +218,8 @@ class Memento_Mori(Frame):
     def open_images(self):
 
         self.grey_wall_tops_dict = {"pillar":PIL.Image.open(os.path.join("grey_wall_0_tops", "pillar.png")), "ES":PIL.Image.open(os.path.join("grey_wall_0_tops", "ES.png")),"ESW":PIL.Image.open(os.path.join("grey_wall_0_tops", "ESW.png")),"EW":PIL.Image.open(os.path.join("grey_wall_0_tops", "EW.png")),"NE":PIL.Image.open(os.path.join("grey_wall_0_tops", "NE.png")),"NES":PIL.Image.open(os.path.join("grey_wall_0_tops", "NES.png")),"NESW":PIL.Image.open(os.path.join("grey_wall_0_tops", "NESW.png")),"NEW":PIL.Image.open(os.path.join("grey_wall_0_tops", "NEW.png")),"NS":PIL.Image.open(os.path.join("grey_wall_0_tops", "NS.png")),"NSW":PIL.Image.open(os.path.join("grey_wall_0_tops", "NSW.png")),"NW":PIL.Image.open(os.path.join("grey_wall_0_tops", "NW.png")),"SW":PIL.Image.open(os.path.join("grey_wall_0_tops", "SW.png")),}
-
+        self.default_ch_dict = {"E":PIL.Image.open(os.path.join("default_ch_walt", "E.png")),"E_alt":PIL.Image.open(os.path.join("default_ch_walt", "E_alt.png")),"N":PIL.Image.open(os.path.join("default_ch_walt", "N.png")),"N_alt":PIL.Image.open(os.path.join("default_ch_walt", "N_alt.png")),"S":PIL.Image.open(os.path.join("default_ch_walt", "S.png")),"S_alt":PIL.Image.open(os.path.join("default_ch_walt", "S_alt.png")),"W":PIL.Image.open(os.path.join("default_ch_walt", "W.png")),"W_alt":PIL.Image.open(os.path.join("default_ch_walt", "W_alt.png"))}
+        
     def redrawmap(self):
 
         self.backdrop = self.wallspic.copy() #copy.deepcopy doesn't work on images :(
@@ -408,10 +313,8 @@ class Memento_Mori(Frame):
                         direction_index = direction_permute.index(cur_ch.orientation) + self.view_rot
                         base_filename = direction_permute[direction_index]
 
-                        filename = base_filename + cur_ch.visual_state + cur_ch.anim_state + ".png"
-
-                        imgpath = os.path.join(ch_sprite_folder, filename)
-                        image = PIL.Image.open(imgpath)
+                        if ch_sprite_folder == "default_ch_walt":
+                            image = self.default_ch_dict[base_filename]
 
                         self.backdrop.paste(image, (int(rel_x), int(rel_y)), image)#draw character sprite onto file
                     
