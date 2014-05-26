@@ -13,6 +13,7 @@ import os
 import math
 import tkinter as tk
 import pickle as pickle
+import copy as copy
 #creates a root with widgets and dialoge to start session
 
 class Memento_Mori(Frame):
@@ -46,16 +47,16 @@ class Memento_Mori(Frame):
             move_loc = [curr_pos[0], curr_pos[1]+wasd_perm[1], curr_pos[2]+wasd_perm[2]]
             self.session.player.roots.append(LS_move(self.session, self.session.player, move_loc))
             self.session.update()
-            self.fulldrawmap()
+            self.redrawmap()
 
         if event.char == "u": #force update
             self.session.update()
-            self.fulldrawmap()
+            self.redrawmap()
 
         if event.char == "y": #do random walk yo
             self.session.player.roots.append(LS_randomwalk(self.session, self.session.player))
             self.session.update()
-            self.fulldrawmap()
+            self.redrawmap()
 
         if event.char == "e":
             print("e pushed!")
@@ -63,17 +64,19 @@ class Memento_Mori(Frame):
             print("roots!")
             self.session.update()
             print("update!")
-            self.fulldrawmap()
+            self.redrawmap()
 
     def openfolder(self):
         folderloc = tk.filedialog.askdirectory()
         self.session = LS_session(folderloc)
         self.fulldrawmap()
+        self.drawwalls()
 
     def opensession(self):
         pickleloc = tk.filedialog.askopenfilename()
         self.session = pickle.load(open(pickleloc, "rb"))
         self.fulldrawmap()
+        self.drawwalls()
         print("LS_session opened from pickle")
 
     def savesession(self):
@@ -96,6 +99,7 @@ class Memento_Mori(Frame):
     def doubleclick(self, event):
         self.view_rot = (self.view_rot+1)%4
         self.fulldrawmap()
+        self.drawwalls()
 
     def make_widgets(self):
         
@@ -225,9 +229,9 @@ class Memento_Mori(Frame):
         self.map_image = ImageTk.PhotoImage(self.backdrop)
         title = self.maincan.create_image(0,0,image=self.map_image, anchor="nw")
 
-        self.session.move_anim = [] #clean animations
-
-    def redrawmap(self):
+        self.session.animations = [] #clean animations
+        
+    def drawwalls(self):
 
         animdex = 0
         anim_pause = 20
@@ -245,6 +249,8 @@ class Memento_Mori(Frame):
         x_dim = len(map_arr[0][0])
         y_dim = len(map_arr[0])
         z_dim = len(map_arr)
+
+        backdrop = PIL.Image.new("RGB", (int(off_width*(x_dim + y_dim+4)), int(off_height*(x_dim + y_dim+4))), "black")
 
         l = self.z_level #TODO make it iterate over zs
 
@@ -300,25 +306,115 @@ class Memento_Mori(Frame):
                     
                     self.image_list.append(image)
                     
-                    self.map_image.paste(image, (int(rel_x), int(rel_y)), image)#draw onto file
-
-                if cur_ssquare.contained_ch != None:
-                    cur_ch = cur_ssquare.contained_ch
-                    ch_sprite_folder = cur_ch.sprite_folder
-
-                    direction_index = direction_permute.index(cur_ch.orientation) + self.view_rot
-                    base_filename = direction_permute[direction_index]
-
-                    filename = base_filename + cur_ch.visual_state + cur_ch.anim_state + ".png"
-
-                    imgpath = os.path.join(ch_sprite_folder, filename)
-                    image = PIL.Image.open(imgpath)
-
-                    self.map_image.paste(image, (int(rel_x), int(rel_y)), image)#draw onto file
+                    backdrop.paste(image, (int(rel_x), int(rel_y)), image)#draw onto file
                     
+        self.wallspic = backdrop
+
+    def redrawmap(self):
+
+        self.backdrop = self.wallspic.copy() #copy.deepcopy doesn't work on images :(
+
+        animdex = 0
+        anim_pause = 20
+
+        to_update = []
+
+        symb_to_folder = {"B":"grey_wall_0", "X":"default_wall"}
+
+        off_width = 114/2
+        off_height = 80/2
+
+        e_1 = [off_height, off_width]
+        e_2 = [off_height, -off_width] #basis vectors : [y,x]
+
+        map_arr = self.session.map_arr
+
+        x_dim = len(map_arr[0][0])
+        y_dim = len(map_arr[0])
+        z_dim = len(map_arr)
+
+        l = self.z_level #TODO make it iterate over zs
+
+        self.image_list = []
+
+        direction_permute = ["NS", "EW", "NS", "EW", "NS", "NE", "ES", "SW", "NW", "NE", "ES", "SW", "NES", "ESW", "NSW", "NEW", "NES", "ESW", "NSW", "N", "E", "S", "W", "N", "E", "S"]
+
+        ordering_list = [[range(y_dim), range(x_dim)],[range(y_dim-1,-1,-1), range(x_dim)],[range(y_dim-1,-1,-1), range(x_dim-1,-1,-1)],[range(y_dim), range(x_dim-1,-1,-1)]]
+
+        y_order = ordering_list[self.view_rot][0]
+        x_order = ordering_list[self.view_rot][1]
+
+        for character in self.session.ch_arr:
+            to_update.append([character.position[0], character.position[1], character.position[2]])
+
+        for anim in self.session.animations:
+            if anim[0] == "move":
+                to_update.append([anim[2][0], anim[2][1], anim[2][2]])
+
+        for i in y_order:
+            for j in x_order:
+                if [l, i, j] in to_update:
+                    cur_ssquare = map_arr[l][i][j]
+
+                    if self.view_rot == 0:
+                        rel_y = i*off_height + j*off_height
+                        rel_x = j*off_width - i*off_width + off_width*(y_dim + 1)
+
+                    if self.view_rot == 1:
+                        rel_y = (y_dim-i)*off_height + j*off_height
+                        rel_x = -j*off_width + (y_dim-i)*off_width + off_width*(x_dim + 1)
+
+                    if self.view_rot == 2:
+                        rel_y = (y_dim-i)*off_height + (x_dim-j)*off_height
+                        rel_x = (x_dim-j)*off_width - (y_dim-i)*off_width + off_width*(y_dim + 1)
+
+                    if self.view_rot == 3:
+                        rel_y = i*off_height + (x_dim-j)*off_height
+                        rel_x = -(x_dim-j)*off_width + i*off_width + off_width*(x_dim + 1)
+                    
+                    if cur_ssquare.type == "wall":
+                        trueorientation = cur_ssquare.wallorientation
+
+                        if trueorientation != "":
+
+                            if trueorientation == "NESW":
+                                filename = "NESW.png"
+
+                            else:
+
+                                wall_index = direction_permute.index(trueorientation) + self.view_rot
+                                filename = direction_permute[wall_index] + ".png" #reassigns filename according to rotation
+
+                        else:
+                            filename = "pillar.png"
+
+                        folder = symb_to_folder[cur_ssquare.symb]
+
+                        imgpath = os.path.join(folder, filename)
+                        image = PIL.Image.open(imgpath)
+                        
+                        self.image_list.append(image)
+                        
+                        self.backdrop.paste(image, (int(rel_x), int(rel_y)), image)#draw wall onto file self.map_image.paste(image, (int(rel_x), int(rel_y)), image)
+
+                    if cur_ssquare.contained_ch != None:
+                        cur_ch = cur_ssquare.contained_ch
+                        ch_sprite_folder = cur_ch.sprite_folder
+
+                        direction_index = direction_permute.index(cur_ch.orientation) + self.view_rot
+                        base_filename = direction_permute[direction_index]
+
+                        filename = base_filename + cur_ch.visual_state + cur_ch.anim_state + ".png"
+
+                        imgpath = os.path.join(ch_sprite_folder, filename)
+                        image = PIL.Image.open(imgpath)
+
+                        self.backdrop.paste(image, (int(rel_x), int(rel_y)), image)#draw character sprite onto file
+                    
+        self.map_image = ImageTk.PhotoImage(self.backdrop)
         title = self.maincan.create_image(0,0,image=self.map_image, anchor="nw")
 
-        self.session.move_anim = [] #clean animations
+        self.session.animations = [] #clean animations
         
 Memento_Mori().start()
 
