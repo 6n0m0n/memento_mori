@@ -23,6 +23,8 @@ class LS_randomwalk(LS_midbehavior):
         bum = True
     
     def get_random_open_square(self, session):
+        #print ("returning a constant [0][15][7]")
+        #return [0, 15, 7]
         # WARNING: here there be monsters
         new_x = randrange( len(self.session.map_arr[0][0]) )
         new_y = randrange( len(self.session.map_arr[0]) )
