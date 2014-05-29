@@ -13,7 +13,7 @@ class LS_behavior:
         self.subtype = ""
 
     def update(self):
-        if update_self:
+        if self.update_self:
             self.update_triggers()
             self.update_variables()
         
