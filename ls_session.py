@@ -122,20 +122,24 @@ class LS_session: #loads up a save's various files, contains game info, talks to
             if self.lb_arr[b].subtype == "attack":
                 print("attack!!!")
                 temp = []
-                for r in range (0,3):
-                    orient = orient_dict[self.lb_arr[b].get_character().orientation]
-                    temp.append(self.lb_arr[b].get_character().position[r]+orient[r])
-                print (temp)
-                if self.get_square(temp).contained_ch != None:
-                    self.get_square(temp).contained_ch.receive_damage()
-                    print ("update sent")
+                for i in range (1,3):
+                    for r in range (0,3):
+                        if i == 1:
+                            orient = orient_dict[self.lb_arr[b].get_character().orientation]
+                            temp.append(self.lb_arr[b].get_character().position[r]+orient[r])
+                        elif i == 2:
+                            temp[r] = temp[r]+orient[r]
+                    print (temp)
+                    if self.get_square(temp).contained_ch != None:
+                        self.get_square(temp).contained_ch.receive_damage()
+                        print ("update sent")
 
                 self.lb_arr[b].status = "finished"
 
         for m in range(len(self.lb_arr)):   
             self.lb_arr[m].update_character()
 
-        attacking = []
+                
         self.lb_arr = []
 
     def initialize_chs(self):
