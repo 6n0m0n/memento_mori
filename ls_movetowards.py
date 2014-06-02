@@ -27,4 +27,5 @@ class LS_movetowards(LS_highdbehavior):
     def update_triggers(self):
         self.target_in_sight = False
         for square in self.character.vision:
-            self.target_in_sight = self.target_in_sight is in square.contained_ch
+            if self.target_in_sight = self.target is square.contained_ch:
+                self.target_in_sight = True

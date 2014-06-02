@@ -5,6 +5,7 @@ from ls_move import LS_move
 from ls_attack import LS_attack
 from ls_randomwalk import LS_randomwalk
 from ls_character import LS_character
+from ls_rotate import LS_rotate
 from tkinter import *
 from PIL import *
 from PIL import ImageTk
@@ -47,6 +48,16 @@ class Memento_Mori(Frame):
             
             move_loc = [curr_pos[0], curr_pos[1]+wasd_perm[1], curr_pos[2]+wasd_perm[2]]
             self.session.player.roots.append(LS_move(self.session, self.session.player, move_loc))
+            self.session.update()
+            self.redrawmap()
+
+        if event.char in "okl;":
+            okl_dict = {"o": "N", "k": "W", "l": "S", ";": "E"}
+            perm_order = "okl;okl"
+            
+            okl_perm = okl_dict[perm_order[perm_order.index(event.char)+self.view_rot]]
+            
+            self.session.player.roots.append(LS_rotate(self.session, self.session.player, okl_perm))
             self.session.update()
             self.redrawmap()
 
