@@ -1,6 +1,7 @@
 #by 6n0m0n, SpaceSheep, and malachite_sprite
 from ls_square import LS_square
 from ls_character import LS_character
+from ls_minion import LS_minion
 import copy as copy
 import os
 import math
@@ -38,6 +39,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         #print("behavior appended")
 
         assert self.lb_arr[-1] is lowbehavior
+        print(self.lb_arr, "NO!!!!")
         
         if len(self.lb_arr) == len(self.ch_arr):
             self.try_lb_updates()
@@ -51,6 +53,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         movefrom_arr = copy.deepcopy(self.movetry_arr)
         staying_arr = copy.deepcopy(self.movetry_arr)
         orient_dict = {"N": [0,-1,0], "S": [0,1,0], "E": [0,0,1], "W":[0,0,-1]}
+        print(self.lb_arr, "YES!!!!!")
 
         for w in self.lb_arr:
             self.already_there.append(w.character.position) #lists in the same order where the characters already are
@@ -79,7 +82,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
                         for w in movetry_arr[i][j][k]: #w is not an index here
                             self.success_dict[w] = "failure" #can't move where someone is standing still
 
-                    if len(movetry_arr[i][j][k]) > 1:
+                    if len(self.movetry_arr[i][j][k]) > 1:
                         winner_index = randrange(len(self.movetry_arr[i][j][k]))
                         
                         for p in range(len(movetry_arr[i][j][k])):
@@ -120,7 +123,6 @@ class LS_session: #loads up a save's various files, contains game info, talks to
   
         for b in range(len(self.lb_arr)):
             if self.lb_arr[b].subtype == "attack":
-                print("attack!!!")
                 temp = []
                 for i in range (1,3):
                     for r in range (0,3):
@@ -136,6 +138,20 @@ class LS_session: #loads up a save's various files, contains game info, talks to
 
                 self.lb_arr[b].status = "finished"
 
+        for b in range(len(self.lb_arr)):
+            if self.lb_arr[b].subtype == "bribe":
+                temp = []
+                for r in range (0,3):
+                    orient = orient_dict[self.lb_arr[b].character.orientation]
+                    temp.append(self.lb_arr[b].get_character().position[r]+orient[r])
+                if self.get_square(temp).contained_ch != None and self.lb_arr[b].character.money >= 20:
+                    if self.get_square(temp).contained_ch.subtype != "target":
+                        print (self.get_square(temp).contained_ch.position)
+                        self.get_square(temp).contained_ch.roots.append(LS_minion(self, self.get_square(temp).contained_ch))
+                        print ("Bribe successful")
+
+                self.lb_arr[b].status = "finished"
+
         for m in range(len(self.lb_arr)):   
             self.lb_arr[m].update_character()
 
@@ -147,8 +163,10 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         for i in range(len(self.chfile)):
             chindex = i
             ch_info_list = self.chfile[i].split(";")
+            print (i,ch_info_list)
             character = LS_character(self, chindex, ch_info_list)
             self.ch_arr.append(character)
+        print (self.ch_arr)
 
     def makemap(self):
 

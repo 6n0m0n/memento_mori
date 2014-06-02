@@ -4,6 +4,9 @@ from collections import Counter
 class LS_square: #handles all info about a map location
     #ch locations are recorded in chfile, not anywhere in the mapfile
 
+    def __str__(self):
+        return "{LS_square ("+str(self.xloc)+str(self.yloc)+str(self.zloc)+")}"
+
     def __init__(self, mapfile, ylength, x, y, z, edgesymb):
         self.xloc = x
         self.yloc = y

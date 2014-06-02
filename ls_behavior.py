@@ -21,4 +21,4 @@ class LS_behavior:
                 for i in range(len(self.children)):
                     self.children[i].update()
 
-            self.children = [s for s in self.children if (not (s.status in ["finished", "failure", "success"]))]
+            self.children = [s for s in self.children if (not (s.status in ["finished", "failure", "failed", "success"]))]

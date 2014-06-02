@@ -4,6 +4,9 @@ from ls_lowbehavior import LS_lowbehavior
 
 class LS_move(LS_lowbehavior):
 
+    def __str__(self):
+        return "{Move obect: "+str(move_loc)+"}"
+
     def __init__(self, session, character, move_loc):
 
         LS_lowbehavior.__init__(self, session, character)

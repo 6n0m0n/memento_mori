@@ -5,6 +5,7 @@ from ls_lowbehavior import LS_lowbehavior
 from ls_midbehavior import LS_midbehavior
 from ls_move import LS_move
 from ls_derp import LS_derp
+from ls_zombie import LS_zombie
 from ls_scaredymove import LS_scaredymove
 import math as Math
 from random import randrange
@@ -84,6 +85,9 @@ class LS_character:
 
         elif self.subtype == "dummy":
             self.roots.append(LS_derp(self.session, self))
+
+        elif self.subtype == "zombie":
+            self.roots.append(LS_zombie(self.session, self))
 
         elif self.subtype == "quarry":
             self.roots.append(LS_scaredymove(self.session, self, [0,19,19], [], []))
