@@ -1,0 +1,5 @@
+type=person;subtype=player;name=Casanova;personality=passive;nat_health=50;nat_calm=40;cur_health=50;cur_calm=30;money=100;position=0,1,1;orientation=S;sprite_folder=player_ch_walt;
+type=person;subtype=walker;name=Freshmeat;personality=passive;nat_health=50;nat_calm=40;cur_health=50;cur_calm=30;money=100;position=0,2,1;orientation=S;sprite_folder=default_ch_walt
+type=person;subtype=walker;name=Freshmeat;personality=passive;nat_health=50;nat_calm=40;cur_health=50;cur_calm=30;money=100;position=0,1,6;orientation=S;sprite_folder=default_ch_walt
+type=person;subtype=dummy;name=Freshmeat;personality=passive;nat_health=50;nat_calm=40;cur_health=50;cur_calm=30;money=100;position=0,3,11;orientation=W;sprite_folder=default_ch_walt
+type=person;subtype=dummy;name=Freshmeat;personality=passive;nat_health=50;nat_calm=40;cur_health=50;cur_calm=30;money=100;position=0,3,8;orientation=E;sprite_folder=default_ch_walt

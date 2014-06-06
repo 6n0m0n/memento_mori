@@ -29,7 +29,7 @@ def next_location_in_path(char, start, finish, session):
     path=[]
     print (char.subtype,start,finish)
     end_node=astar(char, start, finish, session)
-    print("end node gotten:",end_node)
+    #print("end node gotten:",end_node)
     if end_node is None: return None
     parent=end_node.parent
     previous_node=None
@@ -39,7 +39,7 @@ def next_location_in_path(char, start, finish, session):
         previous_node=current_node
         current_node=parent
         parent=current_node.parent
-    print(path)
+    #print(path)
     return previous_node.data
 
 def astar(char, start, finish, session):
@@ -53,7 +53,7 @@ def astar(char, start, finish, session):
     adjacent_tuples=get_adjacent_tuples([], char, visited_locations, root, session, finish)
     current_node=root
     adjacent_tuples.sort()
-    print ("started when loop")
+    #print ("started when loop")
     i = 0
     while len( adjacent_tuples ) > 0:
         if current_node.data == finish:

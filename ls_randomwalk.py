@@ -19,10 +19,10 @@ class LS_randomwalk(LS_midbehavior):
             self.target_loc = self.get_random_open_square(self.session)
             print ("moving to ", self.target_loc)
             self.children.append(LS_movetoloc(self.session, self.character, self.target_loc))
-        else:
-            for i in range(len(self.children)):
-                if self.children[i].status == "failed":
-                    self.children[i] = LS_derp(self.session, self)
+        #else:
+        #    for i in range(len(self.children)):
+        #        if self.children[i].status == "failed":
+        #            self.children[i] = LS_derp(self.session, self)
                     
     
     def update_triggers(self):

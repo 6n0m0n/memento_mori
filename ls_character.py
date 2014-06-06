@@ -7,6 +7,7 @@ from ls_move import LS_move
 from ls_derp import LS_derp
 from ls_zombie import LS_zombie
 from ls_scaredymove import LS_scaredymove
+from ls_randomwalk import LS_randomwalk
 import math as Math
 from random import randrange
 
@@ -82,6 +83,8 @@ class LS_character:
 
         if self.subtype == "player":
             self.session.player = self
+        elif self.subtype == "walker":
+            self.roots.append(LS_randomwalk(self.session, self))
 
         elif self.subtype == "dummy":
             self.roots.append(LS_derp(self.session, self))

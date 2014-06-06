@@ -16,6 +16,7 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         self.ch_arr = []
         self.lb_arr = []
         self.animations = []
+        self.submitted_ch = []
         self.folderloc = folderloc
         
         self.fullmapfile = open(os.path.join(folderloc, "region.txt"), "r+").readlines()
@@ -34,12 +35,16 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         return self.map_arr[coord[0]][coord[1]][coord[2]]
 
     def add_lowbehavior(self, lowbehavior):
-        
-        self.lb_arr.append(lowbehavior)
-        #print("behavior appended")
 
-        assert self.lb_arr[-1] is lowbehavior
-        print(self.lb_arr, "NO!!!!")
+        if not(lowbehavior.character in self.submitted_ch):
+            self.lb_arr.append(lowbehavior)
+        
+        self.submitted_ch.append(lowbehavior.character)
+
+        try:
+            assert(self.lb_arr[-1] is lowbehavior)
+        except AssertionError:
+            print(lowbehavior)
         
         if len(self.lb_arr) == len(self.ch_arr):
             self.try_lb_updates()
@@ -53,7 +58,6 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         movefrom_arr = copy.deepcopy(self.movetry_arr)
         staying_arr = copy.deepcopy(self.movetry_arr)
         orient_dict = {"N": [0,-1,0], "S": [0,1,0], "E": [0,0,1], "W":[0,0,-1]}
-        print(self.lb_arr, "YES!!!!!")
 
         for w in self.lb_arr:
             self.already_there.append(w.character.position) #lists in the same order where the characters already are
@@ -124,21 +128,21 @@ class LS_session: #loads up a save's various files, contains game info, talks to
         for b in range(len(self.lb_arr)):
             if self.lb_arr[b].subtype == "attack":
                 temp = []
-                for i in range (1,3):
+                for i in range (1,2):
                     for r in range (0,3):
                         if i == 1:
                             orient = orient_dict[self.lb_arr[b].get_character().orientation]
                             temp.append(self.lb_arr[b].get_character().position[r]+orient[r])
                         elif i == 2:
                             temp[r] = temp[r]+orient[r]
-                    print (temp)
+                    #print (temp)
                     if self.get_square(temp).contained_ch != None:
                         self.get_square(temp).contained_ch.receive_damage()
-                        print ("update sent")
+                        #print ("update sent")
 
                 self.lb_arr[b].status = "finished"
 
-        for b in range(len(self.lb_arr)):
+        for b in range(len(self.lb_arr)): #this is a comment
             if self.lb_arr[b].subtype == "bribe":
                 temp = []
                 for r in range (0,3):
@@ -157,16 +161,17 @@ class LS_session: #loads up a save's various files, contains game info, talks to
 
                 
         self.lb_arr = []
+        self.submitted_ch = []
 
     def initialize_chs(self):
 
         for i in range(len(self.chfile)):
             chindex = i
             ch_info_list = self.chfile[i].split(";")
-            print (i,ch_info_list)
+            #print (i,ch_info_list)
             character = LS_character(self, chindex, ch_info_list)
             self.ch_arr.append(character)
-        print (self.ch_arr)
+        #print (self.ch_arr)
 
     def makemap(self):
 

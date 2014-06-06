@@ -16,20 +16,19 @@ class LS_movetoloc(LS_midbehavior):
     def update_variables(self):
         self.curr_loc=self.character.position
         if self.curr_loc==self.targetloc:
-            print ("movetoloc finished")
+            #print ("movetoloc finished")
             self.status="success"
         else:
             next_loc = nextloc(self.character, self.curr_loc, self.targetloc, self.session)
             if next_loc is None:
                 print ("movetoloc failed")
-                self.status="failure"
                 self.children=[LS_derp(self.session, self.character)]
             elif len( self.children ) == 0:
-                print ("movetoloc continuing")
+                #print ("movetoloc continuing")
                 self.children.append(LS_move(self.session, self.character, next_loc))
-            else:
-                print ("movetoloc else")
-    
+            #else:
+                #print ("movetoloc else")
+
     def update_triggers(self):
         bum = True
     
